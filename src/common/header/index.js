@@ -1,5 +1,7 @@
-import React, { Component } from 'react';
+import React,{Component} from 'react';
 import { CSSTransition } from 'react-transition-group';
+import { connect } from 'react-redux';
+import { actionCreators }  from './store/';
 import {
     HeaderWrapper,
     Logo,
@@ -8,23 +10,54 @@ import {
     SearchWrapper,
     NavSearch,
     Addition,
-    Button
+    Button,
+    SearchInfo,
+    SearchInfoTitle,
+    SearchInfoSwitch,
+    SearchInfoList,
+    SearchInfoItem,
 } from './style';
+
+
 
 class Header extends Component {
 
-    constructor(props){
-        super(props);
-        this.state={
-            focused:false,
-        };
-        this.handleInputFocus=this.handleInputFocus.bind(this);
-        this.handleInputBlur=this.handleInputBlur.bind(this);
+    getListArea(){
+        const {list, page, focused, mouseIn,changePage, totalpage} =this.props;
+        const pageList=[];
+        const NewList=list.toJS();
+        if(NewList.length){
+            for(let i=(page-1)*10;i<page*10;i++){
+                if(NewList[i]==='') {
+                    break;
+                }else{
+                    pageList.push(<SearchInfoItem key={NewList[i]}>{NewList[i]}</SearchInfoItem>)
+                }
+            }
+        }
+
+
+        if (focused || mouseIn) {
+            return (
+                <SearchInfo>
+                    <SearchInfoTitle>
+                        Hot Search
+                        <SearchInfoSwitch
+                        onClick={()=>changePage(page,totalpage)}
+                        >Change</SearchInfoSwitch>
+                    </SearchInfoTitle>
+                    <SearchInfoList>
+                        {pageList}
+                    </SearchInfoList>
+                </SearchInfo>
+            )
+        }else {
+            return null;
+        }
     }
-
-
-    render() {
-        return (
+    render(){
+        const {focused, handleInputFocus, handleInputBlur,handleMouseEnter,handleMouseLeave,list}=this.props;
+        return(
             <HeaderWrapper>
                 <Logo/>
                 <Nav>
@@ -36,17 +69,23 @@ class Header extends Component {
                     </NavItem>
                     <SearchWrapper>
                         <CSSTransition
-                        in={this.state.focused}
-                        timeout={200}
-                        classNames="slide"
+                            in={focused}
+                            timeout={200}
+                            classNames="slide"
                         >
                             <NavSearch
-                                className={this.state.focused ? 'focused': ''}
-                                onFocus={this.handleInputFocus}
-                                onBlur={this.handleInputBlur}
+                                className={focused ? 'focused': ''}
+                                onFocus={()=>handleInputFocus(list)}
+                                onBlur={handleInputBlur}
                             ></NavSearch>
                         </CSSTransition>
-                        <i className={this.state.focused ? 'focused iconfont': 'iconfont'}>&#xe614;</i>
+                        <i className={focused ? 'focused iconfont': 'iconfont'}>&#xe614;</i>
+                        <SearchInfo
+                        onMouseEnter={handleMouseEnter}
+                        onMouseLeave={handleMouseLeave}
+                        >
+                            {this.getListArea()}
+                        </SearchInfo>
                     </SearchWrapper>
                 </Nav>
                 <Addition>
@@ -59,19 +98,42 @@ class Header extends Component {
             </HeaderWrapper>
         )
     }
-    handleInputFocus(){
-        this.setState({
-            focused:true,
-        })
-    };
-    handleInputBlur(){
-        this.setState(
-            {
-                focused:false
-            }
-        )
-    }
-
 }
 
-export default Header;
+    const mapStateToProps=(state)=>{
+        return{
+            focused: state.getIn(['header','focused']),
+            list:state.getIn(['header','list']),
+            page:state.getIn(['header','page']),
+            mouseIn: state.getIn(['header','mouseIn']),
+            totalpage:state.getIn(['header','totalpage']),
+        }
+    };
+    const mapDispatchToProps=(dispatch)=>{
+        return{
+            handleInputFocus(list){
+                if(list.size===0){
+                    dispatch(actionCreators.getList())
+                }
+                dispatch(actionCreators.searchFocus());
+            },
+            handleInputBlur(){
+                dispatch(actionCreators.searchBlur());
+            },
+            handleMouseEnter(){
+                dispatch(actionCreators.headerMouseEnter());
+            },
+            handleMouseLeave(){
+                dispatch(actionCreators.headerMouseLeave());
+            },
+            changePage(page,totalpage){
+                if(page<totalpage){
+                    dispatch(actionCreators.changePage( page + 1 ));
+                }else{
+                    dispatch(actionCreators.changePage(1));
+                }
+            }
+        }
+    };
+
+export default connect(mapStateToProps,mapDispatchToProps)(Header);
