@@ -43,8 +43,10 @@ class Header extends Component {
                     <SearchInfoTitle>
                         Hot Search
                         <SearchInfoSwitch
-                        onClick={()=>changePage(page,totalpage)}
-                        >Change</SearchInfoSwitch>
+                        onClick={()=>changePage(page,totalpage,this.spinIcon)}
+                        >
+                            <i ref={(icon)=>{this.spinIcon=icon}} className='iconfont spin'>&#xe851;</i>Change
+                        </SearchInfoSwitch>
                     </SearchInfoTitle>
                     <SearchInfoList>
                         {pageList}
@@ -79,7 +81,7 @@ class Header extends Component {
                                 onBlur={handleInputBlur}
                             ></NavSearch>
                         </CSSTransition>
-                        <i className={focused ? 'focused iconfont': 'iconfont'}>&#xe614;</i>
+                        <i className={focused ? 'focused zoom iconfont': 'iconfont zoom'}>&#xe614;</i>
                         <SearchInfo
                         onMouseEnter={handleMouseEnter}
                         onMouseLeave={handleMouseLeave}
@@ -126,7 +128,15 @@ class Header extends Component {
             handleMouseLeave(){
                 dispatch(actionCreators.headerMouseLeave());
             },
-            changePage(page,totalpage){
+            changePage(page,totalpage,spin){
+                let originAngle = spin.style.transform.replace(/[^0-9]/ig,'');
+                if(originAngle){
+                    originAngle=parseInt(originAngle,10);
+                    console.log(originAngle);
+                }else{
+                    originAngle=0;
+                }
+                spin.style.transform='rotate('+(originAngle+360)+'deg)';
                 if(page<totalpage){
                     dispatch(actionCreators.changePage( page + 1 ));
                 }else{
