@@ -1,7 +1,8 @@
-import React,{Component} from 'react';
+import React,{PureComponent} from 'react';
 import { CSSTransition } from 'react-transition-group';
 import { connect } from 'react-redux';
 import { actionCreators }  from './store/';
+import {Link} from 'react-router-dom';
 import {
     HeaderWrapper,
     Logo,
@@ -20,7 +21,7 @@ import {
 
 
 
-class Header extends Component {
+class Header extends PureComponent {
 
     getListArea(){
         const {list, page, focused, mouseIn,changePage, totalpage} =this.props;
@@ -61,7 +62,12 @@ class Header extends Component {
         const {focused, handleInputFocus, handleInputBlur,handleMouseEnter,handleMouseLeave,list}=this.props;
         return(
             <HeaderWrapper>
-                <Logo/>
+                <Link
+                    to='/'
+                >
+                    <Logo/>
+                </Link>
+
                 <Nav>
                     <NavItem className='left active'>HOME</NavItem>
                     <NavItem className='left'>Download</NavItem>

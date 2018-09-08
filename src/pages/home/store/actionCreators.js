@@ -35,3 +35,9 @@ export const getMoreList=(page)=>{
         });
     }
 };
+
+export const scrollTopUp=(show)=>({
+    type:constants.SCROLL_TOP_UP,
+    show
+});
+
