@@ -3,6 +3,7 @@ import { CSSTransition } from 'react-transition-group';
 import { connect } from 'react-redux';
 import { actionCreators }  from './store/';
 import {Link} from 'react-router-dom';
+import {ActionCreators as loginActionCreators} from '../../pages/login/store';
 import {
     HeaderWrapper,
     Logo,
@@ -59,7 +60,7 @@ class Header extends PureComponent {
         }
     }
     render(){
-        const {focused, handleInputFocus, handleInputBlur,handleMouseEnter,handleMouseLeave,list}=this.props;
+        const {focused, handleInputFocus, handleInputBlur,handleMouseEnter,handleMouseLeave,list,login,logout}=this.props;
         return(
             <HeaderWrapper>
                 <Link
@@ -71,7 +72,13 @@ class Header extends PureComponent {
                 <Nav>
                     <NavItem className='left active'>HOME</NavItem>
                     <NavItem className='left'>Download</NavItem>
-                    <NavItem className='right'>Login</NavItem>
+                    {
+                        login ? <NavItem className='right'
+                            onClick={logout}
+                            >SignOut</NavItem>
+                            :<Link to='/login'
+                            ><NavItem className='right'>Login</NavItem></Link>
+                    }
                     <NavItem className='right'>
                         <i className="iconfont">&#xe636;</i>
                     </NavItem>
@@ -97,10 +104,12 @@ class Header extends PureComponent {
                     </SearchWrapper>
                 </Nav>
                 <Addition>
-                    <Button className='writting'>
-                        <i className="iconfont">&#xe615;</i>
-                        Write Article
-                    </Button>
+                    <Link to='/write'>
+                        <Button className='writting'>
+                            <i className="iconfont">&#xe615;</i>
+                            Write Article
+                        </Button>
+                    </Link>
                     <Button className='reg'>SignUp</Button>
                 </Addition>
             </HeaderWrapper>
@@ -115,6 +124,7 @@ class Header extends PureComponent {
             page:state.getIn(['header','page']),
             mouseIn: state.getIn(['header','mouseIn']),
             totalpage:state.getIn(['header','totalpage']),
+            login:state.getIn(['login','login']),
         }
     };
     const mapDispatchToProps=(dispatch)=>{
@@ -148,6 +158,9 @@ class Header extends PureComponent {
                 }else{
                     dispatch(actionCreators.changePage(1));
                 }
+            },
+            logout(){
+                dispatch(loginActionCreators.handleLogout());
             }
         }
     };
