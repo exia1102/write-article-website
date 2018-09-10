@@ -7,13 +7,17 @@ const defaultState=fromJS({
 
 });
 
+const getDetailList = (state,action)=>{
+  return state.merge({
+      title:action.title,
+      content:action.content,
+  });
+};
+
 const reducer = (state=defaultState,action)=>{
     switch (action.type){
         case constants.GET_DETAIL_LIST:
-            return state.merge({
-               title:action.title,
-               content:action.content,
-            });
+            return getDetailList(state,action);
         default:
             return state;
     }
